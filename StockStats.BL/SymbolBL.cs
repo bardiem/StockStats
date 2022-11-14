@@ -69,10 +69,10 @@ namespace StockStats.BL
                 }
                 else
                 {
-                    var stock1Increase = (float)((stock1[i].AveragePrice - stock1[i - 1].AveragePrice) / stock1[i - 1].AveragePrice * 100);
+                    var stock1Increase = (float)((stock1[i].AveragePrice - stock1[0].AveragePrice) / stock1[0].AveragePrice * 100);
                     comparisonResult.Stock1Performance.Add(stock1Increase);
 
-                    var stock2Increase = (float)((stock2[i].AveragePrice - stock2[i - 1].AveragePrice) / stock2[i - 1].AveragePrice * 100);
+                    var stock2Increase = (float)((stock2[i].AveragePrice - stock2[0].AveragePrice) / stock2[0].AveragePrice * 100);
                     comparisonResult.Stock2Performance.Add(stock2Increase);
                 }
             }

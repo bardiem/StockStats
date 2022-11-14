@@ -32,13 +32,13 @@ namespace StockStats.WebApi.Controllers
         [Route("StockPerformanceWithSnPForWeek/{symbolName}")]
         public async Task<IActionResult> GetStockPerformanceWithSnPForWeek(string symbolName)
         {
-            var weekDateRangeForAlpaca = new DateRange(DateTime.UtcNow.AddDays(-7), DateTime.UtcNow.AddMinutes(-15).AddSeconds(-2));
-            var symbolBars = await _symbolSL.GetHistory(symbolName, weekDateRangeForAlpaca, BarTimeFrame.Day);
+            var lastWeekDateRange = DateRange.GetLastWeekDateRange();
+            var symbolBars = await _symbolSL.GetHistory(symbolName, lastWeekDateRange, BarTimeFrame.Day);
             if (symbolBars == null || symbolBars.Count == 0)
             {
                 return NotFound();
             }
-            var snpBars = await _symbolSL.GetHistory("SPY", weekDateRangeForAlpaca, BarTimeFrame.Day);
+            var snpBars = await _symbolSL.GetHistory("SPY", lastWeekDateRange, BarTimeFrame.Day);
 
             var symbolPerfBars = _mapper.Map<List<SymbolPerformance>>(symbolBars);
             var snpPerfBars = _mapper.Map<List<SymbolPerformance>>(snpBars);

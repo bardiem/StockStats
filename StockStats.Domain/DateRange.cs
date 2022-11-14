@@ -17,5 +17,14 @@ namespace StockStats.Domain
         {
             return date <= RangeEnd && date >= RangeStart;
         }
+
+        public static DateRange GetLastWeekDateRange()
+        {
+            var mondayOfTheLastWeek = DateTime.UtcNow.AddDays(-(int)DateTime.UtcNow.DayOfWeek - 6);
+            var firstTimeOfLastWeek = new DateTime(mondayOfTheLastWeek.Year, mondayOfTheLastWeek.Month, mondayOfTheLastWeek.Day, 0, 0, 1);
+            var lastMinuteOfLastWeek = firstTimeOfLastWeek.AddDays(7);
+            var weekDateRangeForAlpaca = new DateRange(firstTimeOfLastWeek, lastMinuteOfLastWeek);
+            return weekDateRangeForAlpaca;
+        }
     }
 }
