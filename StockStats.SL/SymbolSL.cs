@@ -1,4 +1,5 @@
 ﻿using Alpaca.Markets;
+using StockStats.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,11 +19,10 @@ namespace StockStats.SL
             _env = env;
         }
 
-        public async Task<IReadOnlyList<IBar>> GetHistory(string symbolName, DateTime startDate, DateTime endDate)
+        public async Task<IReadOnlyList<IBar>> GetHistory(string symbolName, DateRange dateRange, BarTimeFrame timeframe)
         {
             var client = _env.GetAlpacaDataClient(_secretKey);
-            var timeframe = BarTimeFrame.Hour;
-            var barsDictionary = await client.GetHistoricalBarsAsync(new HistoricalBarsRequest(symbolName, startDate, endDate, timeframe));
+            var barsDictionary = await client.GetHistoricalBarsAsync(new HistoricalBarsRequest(symbolName, dateRange.RangeStart, dateRange.RangeEnd, timeframe));
             return barsDictionary.Items.FirstOrDefault().Value;
         }
     }

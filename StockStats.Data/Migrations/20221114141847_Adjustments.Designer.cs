@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StockStats.Data;
 
@@ -11,9 +12,11 @@ using StockStats.Data;
 namespace StockStats.Data.Migrations
 {
     [DbContext(typeof(StockStatsDbContext))]
-    partial class StockStatsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221114141847_Adjustments")]
+    partial class Adjustments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

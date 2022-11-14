@@ -1,11 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\StockStats.DAL\StockStats.DAL.csproj" />
     <ProjectReference Include="..\StockStats.Domain\StockStats.Domain.csproj" />
+    <ProjectReference Include="..\StockStats.SL\StockStats.SL.csproj" />
   </ItemGroup>
 
 </Project>

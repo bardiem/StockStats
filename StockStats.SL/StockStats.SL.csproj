@@ -8,4 +8,8 @@
     <PackageReference Include="Alpaca.Markets" Version="6.1.6" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\StockStats.Domain\StockStats.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
