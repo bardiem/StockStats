@@ -3,6 +3,7 @@ using StockStats.Domain;
 using StockStats.Domain.Entities;
 using StockStats.Domain.Entities.Enums;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace StockStats.BL
@@ -22,25 +23,39 @@ namespace StockStats.BL
 
         public async Task AddPerformanceIfNotExists(List<SymbolPerformance> symbolPerformance, UpdateFrequencyEnum updateFrequency)
         {
-            foreach (var performance in symbolPerformance)
+            if (symbolPerformance == null || symbolPerformance.Count == 0)
             {
-                var symbolInDb = await _symbolRepo.GetBySymbolName(performance.Symbol.SymbolName);
-
-                if (symbolInDb == null)
-                {
-                    symbolInDb = await _symbolRepo.CreateSymbol(performance.Symbol);
-                }
-
-                var latestPerformance = await _symbolPerformanceRepo.GetLatestSymbolPerformance(symbolInDb.SymbolID, updateFrequency);
-
-                if (latestPerformance == null || latestPerformance?.PerformanceDateTime < performance.PerformanceDateTime)
-                {
-                    performance.Symbol = symbolInDb;
-                    performance.SymbolID = symbolInDb.SymbolID;
-
-                    await _symbolPerformanceRepo.CreateSymbolPerformance(performance);
-                }
+                return;
             }
+
+            var symbolInDb = await AddSymbolIfNotExists(symbolPerformance);
+
+            var latestPerformance = await _symbolPerformanceRepo.GetLatestSymbolPerformance(symbolInDb.SymbolID, updateFrequency);
+
+            var performanceToAdd = symbolPerformance.Where(x => x.PerformanceDateTime > latestPerformance.PerformanceDateTime);
+
+            foreach (var performance in performanceToAdd)
+            {
+                performance.Symbol = symbolInDb;
+                performance.SymbolID = symbolInDb.SymbolID;
+                performance.UpdateFrequency = updateFrequency;
+
+                await _symbolPerformanceRepo.CreateSymbolPerformance(performance);
+            }
+        }
+
+        private async Task<Symbol> AddSymbolIfNotExists(List<SymbolPerformance> symbolPerformance)
+        {
+            var symbol = symbolPerformance.Where(x => x.Symbol != null).First();
+
+            var symbolInDb = await _symbolRepo.GetBySymbolName(symbol.Symbol.SymbolName);
+
+            if (symbolInDb == null)
+            {
+                symbolInDb = await _symbolRepo.CreateSymbol(symbol.Symbol);
+            }
+
+            return symbolInDb;
         }
 
         public CompareStocksResult GetSymbolPerformanceComparison(IList<SymbolPerformance> stock1, IList<SymbolPerformance> stock2)
