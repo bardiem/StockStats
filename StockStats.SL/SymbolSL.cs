@@ -9,19 +9,16 @@ namespace StockStats.SL
 {
     public class SymbolSL : ISymbolSL
     {
-        private readonly IEnvironment _env;
-        private readonly SecretKey _secretKey;
+        private readonly IAlpacaDataClient _dataClient;
 
-        public SymbolSL(SecretKey secretKey, IEnvironment env)
+        public SymbolSL(IAlpacaDataClient dataClient)
         {
-            _secretKey = secretKey;
-            _env = env;
+            _dataClient = dataClient;
         }
 
         public async Task<IReadOnlyList<IBar>> GetHistory(string symbolName, DateRange dateRange, BarTimeFrame timeframe)
         {
-            var client = _env.GetAlpacaDataClient(_secretKey);
-            var barsDictionary = await client.GetHistoricalBarsAsync(new HistoricalBarsRequest(symbolName, dateRange.RangeStart, dateRange.RangeEnd, timeframe));
+            var barsDictionary = await _dataClient.GetHistoricalBarsAsync(new HistoricalBarsRequest(symbolName, dateRange.RangeStart, dateRange.RangeEnd, timeframe));
             return barsDictionary.Items.FirstOrDefault().Value;
         }
     }

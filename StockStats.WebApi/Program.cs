@@ -18,11 +18,13 @@ builder.Services.AddDbContext<StockStatsDbContext>(options =>
 builder.Services.AddScoped<ISymbolPerformanceRepo, SymbolPerformanceRepo>();
 builder.Services.AddScoped<ISymbolRepo, SymbolRepo>();
 
-builder.Services.AddScoped<ISymbolSL>(_ => 
-    new SymbolSL(
-        new SecretKey(builder.Configuration.GetValue<string>("AlpacaApi_API_KEY"), builder.Configuration.GetValue<string>("AlpacaApi_API_SECRET")),
-        Alpaca.Markets.Environments.Live)
+builder.Services.AddScoped<ISymbolSL>(_ => {
+        var secretKey = new SecretKey(builder.Configuration.GetValue<string>("AlpacaApi_API_KEY"), builder.Configuration.GetValue<string>("AlpacaApi_API_SECRET"));
+        var client = Alpaca.Markets.Environments.Live.GetAlpacaDataClient(secretKey);
+        return new SymbolSL(client);
+    }
 );
+
 builder.Services.AddScoped<ISymbolBL, SymbolBL>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

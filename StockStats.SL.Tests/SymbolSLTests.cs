@@ -32,33 +32,33 @@ namespace StockStats.SL.Tests
 
             var dateRange = new DateRange(startDate, endDate);
 
-            var environment = CreateEnvironment(symbolName, dateRange, timeFrame);
+            var dataClient = CreateClient(symbolName);
 
-            var sut = new SymbolSL(_secretKey, environment);
-
+            var sut = new SymbolSL(dataClient);
 
             // act
             var result = sut.GetHistory(symbolName, dateRange, timeFrame);
 
 
             // assert
-            Assert.NotNull(result);
+            Assert.NotNull(result.Result);
+            Assert.Equal(2, result.Result.Count);
+            Assert.Equal(result.Result[0].Symbol, symbolName);
         }
 
-        public IEnvironment CreateEnvironment(string symbolName, DateRange dateRange, BarTimeFrame timeFrame)
+        public IAlpacaDataClient CreateClient(string symbolName)
         {
             var clientMock = new Mock<IAlpacaDataClient>();
-            var environmentMock = new Mock<IEnvironment>();
-            var multipage = GetMultiPageItemsData();
+            var multipage = GetMultiPageItemsData(symbolName);
 
             clientMock
                 .Setup(x => x.GetHistoricalBarsAsync(It.IsNotNull<HistoricalBarsRequest>(), It.IsAny<CancellationToken>()))
                 .Returns(multipage);
 
-            return environmentMock.Object;
+            return clientMock.Object;
         }
 
-        private Task<IMultiPage<IBar>> GetMultiPageItemsData()
+        private Task<IMultiPage<IBar>> GetMultiPageItemsData(string symbolName)
         {
             return Task.Factory.StartNew(() => {
                 MultiPage<IBar> multipage = new MultiPage<IBar>();
@@ -67,17 +67,17 @@ namespace StockStats.SL.Tests
                 {
                     new Bar
                     {
-                        Symbol = "AAPL",
-                        High = 105
+                        Symbol = symbolName,
+                        High = 105,
                     },
                     new Bar
                     {
-                        Symbol = "AAPL",
+                        Symbol = symbolName,
                         High = 102
                     }
                 }.AsReadOnly();
                 var itemsDictionary = new Dictionary<string, IReadOnlyList<IBar>>();
-                itemsDictionary.Add("AAPL", barsList);
+                itemsDictionary.Add(symbolName, barsList);
 
                 multipage.Items = new ReadOnlyDictionary<string, IReadOnlyList<IBar>>(itemsDictionary);
 
