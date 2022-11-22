@@ -1,7 +1,10 @@
-﻿using StockStats.DAL;
+﻿using Alpaca.Markets;
+using AutoMapper;
+using StockStats.DAL;
 using StockStats.Domain;
 using StockStats.Domain.Entities;
 using StockStats.Domain.Entities.Enums;
+using StockStats.SL;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,12 +15,26 @@ namespace StockStats.BL
     {
         private readonly ISymbolRepo _symbolRepo;
         private readonly ISymbolPerformanceRepo _symbolPerformanceRepo;
+        private readonly ISymbolSL _symbolSL;
+        private readonly ISymbolPerformanceCollectionBL _symbolPerformanceCollectionBL;
+        private readonly ISymbolBL _symbolBL;
+        private readonly IMapper _mapper;
 
 
-        public SymbolBL(ISymbolRepo symbolRepo, ISymbolPerformanceRepo symbolPerformanceRepo)
+        public SymbolBL(
+            ISymbolRepo symbolRepo,
+            ISymbolPerformanceRepo symbolPerformanceRepo,
+            ISymbolSL symbolSL,
+            IMapper mapper,
+            ISymbolPerformanceCollectionBL symbolPerformanceCollectionBL,
+            ISymbolBL symbolBL)
         {
             _symbolRepo = symbolRepo;
             _symbolPerformanceRepo = symbolPerformanceRepo;
+            _symbolSL = symbolSL;
+            _mapper = mapper;
+            _symbolPerformanceCollectionBL = symbolPerformanceCollectionBL;
+            _symbolBL = symbolBL;
         }
 
 
@@ -92,6 +109,22 @@ namespace StockStats.BL
                 }
             }
             return comparisonResult;
+        }
+
+        public async Task<IList<SymbolPerformance>> GetSymbolPerformancesDaily(string symbol, DateRange dateRange)
+        {
+            var symbolPerformacesForDate = await _symbolPerformanceRepo.GetSymbolPerformance(symbol, dateRange, UpdateFrequencyEnum.Daily);
+
+            if (_symbolPerformanceCollectionBL.IsCorrectCollectionDayRange(symbolPerformacesForDate))
+            {
+                return symbolPerformacesForDate;
+            }
+            else
+            {
+                var symbolPerformanceBars = await _symbolSL.GetHistory(symbol, dateRange, BarTimeFrame.Day);
+                await _symbolBL.AddPerformanceIfNotExists(symbolPerformanceBars, UpdateFrequencyEnum.Daily);
+                return _mapper.Map<List<SymbolPerformance>>(symbolPerformanceBars);
+            }
         }
     }
 }

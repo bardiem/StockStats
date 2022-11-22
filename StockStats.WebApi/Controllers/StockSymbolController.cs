@@ -52,6 +52,22 @@ namespace StockStats.WebApi.Controllers
         }
 
         [HttpGet]
+        [Route("StockPerformanceWithSnPForWeekFromDB/{symbolName}")]
+        public async Task<IActionResult> GetStockPerformanceWithSnPForWeekFromDB(string symbolName)
+        {
+            var lastWeekDateRange = DateRange.GetLastWeekDateRange();
+            var symbolPerfBars = await _symbolBL.GetSymbolPerformancesDaily(symbolName, lastWeekDateRange);
+            if (symbolPerfBars == null || symbolPerfBars.Count == 0)
+            {
+                return NotFound();
+            }
+            var snpPerfBars = await _symbolBL.GetSymbolPerformancesDaily("SPY", lastWeekDateRange);
+            var result = _symbolBL.GetSymbolPerformanceComparison(symbolPerfBars, snpPerfBars);
+
+            return Ok(result);
+        }
+
+        [HttpGet]
         [Route("StockPerformanceWithSnPForDay/{symbolName}")]
         public async Task<IActionResult> GetStockPerformanceWithSnPForDay(string symbolName)
         {

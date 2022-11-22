@@ -10,5 +10,6 @@ namespace StockStats.BL
     {
         CompareStocksResult GetSymbolPerformanceComparison(IList<SymbolPerformance> stock1, IList<SymbolPerformance> stock2);
         Task AddPerformanceIfNotExists(List<SymbolPerformance> symbolPerformance, UpdateFrequencyEnum updateFrequency);
+        Task<IList<SymbolPerformance>> GetSymbolPerformancesDaily(string symbol, DateRange dateRange);
     }
 }

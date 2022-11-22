@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StockStats.Data;
+using StockStats.Domain;
 using StockStats.Domain.Entities;
 using StockStats.Domain.Entities.Enums;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -28,6 +30,15 @@ namespace StockStats.DAL
                 .Where(x => x.SymbolID == symbolId)
                 .OrderBy(x => x.PerformanceDateTime)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<IList<SymbolPerformance>> GetSymbolPerformance(string symbol, DateRange dateRange, UpdateFrequencyEnum updateFrequency)
+        {
+            return await _context
+                .SymbolPerformance
+                .Where(x => x.Symbol.SymbolName == symbol && x.UpdateFrequency == updateFrequency &&
+                x.PerformanceDateTime <= dateRange.RangeEnd && x.PerformanceDateTime >= dateRange.RangeStart)
+                .ToListAsync();
         }
     }
 }

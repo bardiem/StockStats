@@ -25,6 +25,7 @@ builder.Services.AddScoped<ISymbolSL>(_ => {
     }
 );
 
+builder.Services.AddScoped<ISymbolPerformanceCollectionBL, SymbolPerformanceCollectionBL>();
 builder.Services.AddScoped<ISymbolBL, SymbolBL>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
