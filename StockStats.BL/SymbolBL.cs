@@ -17,7 +17,6 @@ namespace StockStats.BL
         private readonly ISymbolPerformanceRepo _symbolPerformanceRepo;
         private readonly ISymbolSL _symbolSL;
         private readonly ISymbolPerformanceCollectionBL _symbolPerformanceCollectionBL;
-        private readonly ISymbolBL _symbolBL;
         private readonly IMapper _mapper;
 
 
@@ -26,15 +25,13 @@ namespace StockStats.BL
             ISymbolPerformanceRepo symbolPerformanceRepo,
             ISymbolSL symbolSL,
             IMapper mapper,
-            ISymbolPerformanceCollectionBL symbolPerformanceCollectionBL,
-            ISymbolBL symbolBL)
+            ISymbolPerformanceCollectionBL symbolPerformanceCollectionBL)
         {
             _symbolRepo = symbolRepo;
             _symbolPerformanceRepo = symbolPerformanceRepo;
             _symbolSL = symbolSL;
             _mapper = mapper;
             _symbolPerformanceCollectionBL = symbolPerformanceCollectionBL;
-            _symbolBL = symbolBL;
         }
 
 
@@ -122,7 +119,8 @@ namespace StockStats.BL
             else
             {
                 var symbolPerformanceBars = await _symbolSL.GetHistory(symbol, dateRange, BarTimeFrame.Day);
-                await _symbolBL.AddPerformanceIfNotExists(symbolPerformanceBars, UpdateFrequencyEnum.Daily);
+                var symbolPerformance = _mapper.Map<List<SymbolPerformance>>(symbolPerformanceBars);
+                await AddPerformanceIfNotExists(symbolPerformance, UpdateFrequencyEnum.Daily);
                 return _mapper.Map<List<SymbolPerformance>>(symbolPerformanceBars);
             }
         }
